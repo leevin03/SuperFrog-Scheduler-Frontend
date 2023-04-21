@@ -4,8 +4,7 @@ import MapComponent from "@/views/Range.vue";
 import Request from "@/views/Request.vue";
 // import ModifyRequest from "@/ModifyRequest.vue";
 import Main from "@/views/Main.vue";
-import SelectDateAndTime from '@/components-in-request/SelectDateAndTime.vue';
-import CompleteForm from '@/components-in-request/CompleteForm.vue';
+import RequestDetails from '@/components-in-request/RequestDetails.vue';
 import PolicyAgreement from '@/components-in-request/PolicyAgreement.vue';
 import ReviewAndSubmit from '@/components-in-request/ReviewAndSubmit.vue';
 import Finish from '@/components-in-request/Finish.vue';
@@ -19,9 +18,8 @@ const routes = [
         path: "/request",
         component: Request,
         children: [
-            { path: '', redirect: '/request/SelectDateAndTime' },
-            { path: 'SelectDateAndTime', name: 'SelectDateAndTime', component: SelectDateAndTime },
-            { path: 'CompleteForm', name: 'CompleteForm', component: CompleteForm },
+            { path: '', redirect: '/request/RequestDetails' },
+            { path: 'RequestDetails', name: 'RequestDetails', component: RequestDetails },
             { path: 'PolicyAgreement', name: 'PolicyAgreement', component: PolicyAgreement },
             { path: 'ReviewAndSubmit', name: 'ReviewAndSubmit', component: ReviewAndSubmit },
             { path: 'Finish', name: 'Finish', component: Finish }
