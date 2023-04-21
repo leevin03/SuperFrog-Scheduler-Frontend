@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 // import Pricing from "@/Pricing.vue";
-// import Range from "@/Range.vue";
+import MapComponent from "@/views/Range.vue";
 import Request from "@/views/Request.vue";
 // import ModifyRequest from "@/ModifyRequest.vue";
 import Main from "@/views/Main.vue";
@@ -27,10 +27,10 @@ const routes = [
             { path: 'Finish', name: 'Finish', component: Finish }
         ],
     },
-//   {
-//     path: "/range",
-//     component: Range,
-//   },
+  {
+    path: "/range",
+    component: MapComponent,
+  },
 //   {
 //     path: "/request",
 //     component: Request,
