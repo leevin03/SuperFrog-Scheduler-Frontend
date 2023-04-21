@@ -6,6 +6,6 @@
 
 <script>
   export default {
-    name: "CompleteForm",
+    name: "RequestDetails",
   };
 </script>
