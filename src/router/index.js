@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-// import Pricing from "@/Pricing.vue";
+import Pricing from "@/views/Pricing.vue";
 import MapComponent from "@/views/Range.vue";
 import Request from "@/views/Request.vue";
 // import ModifyRequest from "@/ModifyRequest.vue";
@@ -29,6 +29,11 @@ const routes = [
     path: "/range",
     component: MapComponent,
   },
+  {
+    path: "/pricing",
+    component: Pricing,
+  },
+
 //   {
 //     path: "/request",
 //     component: Request,
