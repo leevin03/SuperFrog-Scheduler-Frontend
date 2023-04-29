@@ -136,9 +136,6 @@ export default {
     }
   },
   methods: {
-    
-
-
     submitForm() {
       if (this.form.mileage <= 2.0) {
         this.form.onCampus = true;
@@ -168,6 +165,23 @@ export default {
           console.log(error);
         });
     },
+    submitForm() {
+      // Check for valid phone number
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(this.form.reqPhoneNumber)) {
+        alert('Please enter a valid phone number.');
+        return;
+      }
+      
+      // Check for valid email address
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(this.form.reqEmail)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+    },
+
+
     distanceCalculator() {
       const address = this.form.address;
       const destination = '2850 Stadium Drive; Fort Worth, Texas 76129';
@@ -197,8 +211,8 @@ export default {
 
               // Bind the distance value to "mileage" in the data json
               this.form.mileage = distance * 0.621371;
-              console.log(this.form.mileage);
-              console.log(this.form);
+              // console.log(this.form.mileage);
+              // console.log(this.form);
             })
             .catch(error => {
               console.log(error);
@@ -211,75 +225,6 @@ export default {
   }
 }
 </script>
-
-
-
-
-<!-- <script>
-import axios from 'axios'
-
-export default { 
-  name: "RequestDetails",
-  data() {
-    return {
-      form: {
-        reqFirstName: '',
-        reqLastName: '',
-        reqPhoneNumber: '',
-        reqEmail: '',
-        appearanceType: 'PRIVATE',
-        title: '',
-        orgName: 'none',
-        address: '',
-        mileage: '',
-        eventDate: '',
-        startTime: '',
-        endTime: '',
-        status: 'PENDING',
-        desc: '',
-        onCampus: '',
-        instructions: '',
-        expenses: '',
-        outsideOrg: ''
-      }
-    }
-  },
-  methods: {
-    submitForm() {
-      if (this.form.mileage <= 2.0) {
-        this.form.onCampus = true;
-      } else {
-        this.form.onCampus = false;
-      }
-      if (this.form.instructions === '') {
-        this.form.instructions = 'none';
-      }
-      if (this.form.expenses === '') {
-        this.form.expenses = 'none';
-      }
-      if (this.form.outsideOrg === '') {
-        this.form.outsideOrg = 'none';
-      }
-      if (this.form.orgName === '') {
-        this.form.orgName = 'none';
-      }
-      if (this.form.mileage === '') {
-        this.form.mileage = distanceCalculator();
-      }
-      axios.post('http://localhost:8080/api/v1/appearances', this.form)
-        .then(response => {
-          console.log(response);
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    },
-    distanceCalculator() {
-      return 0.0;
-    }
-  }
-}
-</script> -->
 
 <style>
 .form-container {
