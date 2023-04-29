@@ -1,3 +1,6 @@
+
+
+
 <template>
   <div class="app-container">
     <!-- <h1 class="title">SuperFrog Scheduler</h1> -->
@@ -11,6 +14,7 @@
 
 <script>
 import Main from "@/views/Main.vue";
+
 
 export default {
   name: "App",

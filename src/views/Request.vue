@@ -70,6 +70,7 @@ export default {
 
 <style>
 .progress-bar {
+  border: 1px solid #ccc;
   background-color: #4d1979;
   height: 20px;
   margin: 20px 0;
