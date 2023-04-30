@@ -115,11 +115,7 @@
       </div>
 
       <div class="stage-names">
-        <div
-          v-for="(stage, index) in stages"
-          :key="index"
-          :class="{ active: index === currentStage }"
-        >
+        <div v-for="(stage, index) in stages" :key="index" :class="{ active: index === currentStage }">
           {{ stage }}
         </div>
       </div>
@@ -282,25 +278,25 @@ export default {
 
 <style>
 .progress-bar-and-button{
-  margin-top: 75px;
+margin-top: 75px;
 }
 
 .progress-bar {
-  border: 1px solid #ccc;
-  background-color: #4d1979;
-  height: 20px;
-  margin-top: 100px;
-  position: relative;
+border: 1px solid #ccc;
+background-color: #4d1979;
+height: 20px;
+margin-top: 100px;
+position: relative;
 }
 
 .progress-bar-fill {
-  width: 12.5%;
-  background-color: white;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transition: width 0.5s;
+width: 12.5%;
+background-color: white;
+height: 100%;
+position: absolute;
+top: 0;
+left: 0;
+transition: width 0.5s;
 }
 
 .stage-names {

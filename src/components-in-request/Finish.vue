@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <button style="margin-top: 20px;" type="reset" @click="returnToMainPage">Return to main page</button>
+    <button style="margin-top: 20px;" type="button" @click="returnToMainPage">Return to main page</button>
 
 </div>
 
