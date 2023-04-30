@@ -1,14 +1,14 @@
 <template>
-    <div>
-      <p>
-        ***Note that this page is for modification only. You must contact the SuperFrog Scheduler team to cancel your request.***
-      </p>
-      <p>Please enter the ID of the request you would like to modify and hit enter to continue:</p>
-      <input type="text" v-model="requestID" @keyup.enter="submitRequestID" />
-      <p v-if="error" style="color: red;">{{ error }}</p>
-    </div>
-  </template>
-
+  <div>
+    <div style="background-color: rgba(255,0,0,0.7); border: 1px solid black; padding: 10px; margin-bottom: 20px; border-radius: 10px;">
+      <p style="font-size: 0.9em; font-weight: bold; line-height: 1.2em;">Note that this page is for modification only.<br>You must contact the SuperFrog Scheduler team to cancel your request.</p>
+    </div>  
+    <p><b>Please enter the ID of the request you would like to modify:</b></p>
+    <input type="text" v-model="requestID" @keyup.enter="submitRequestID" />
+    <p v-if="error" style="color: red;">{{ error }}</p>
+    <button style="background-color: white; color: black; font-weight: bold; padding: 10px; margin-top: 20px;" @click="submitRequestID">Continue</button>
+  </div>
+</template>
 
 <script>
 export default {
@@ -50,3 +50,4 @@ export default {
   },
 };
 </script>
+

@@ -8,10 +8,12 @@
         <br>
          {{ this.formData.reqEmail }}.
         <br>
-        Please note this request ID for future reference or modification:
+        <h3>Please note this request ID for future reference or modification:</h3>
         <br>
       </span>
-      <h2 style="font-size: 2rem;">{{ requestID }} </h2>
+      <div class="circle">
+        <h2 style="font-size: 3rem; margin: 0;">{{ requestID }}</h2>
+      </div>
   </div> 
 
 
@@ -126,6 +128,14 @@ justify-content: center;
 .stage-content {
 margin-top: 20px;
 }
+
+.circle {
+        display: inline-block;
+        border-radius: 100%;
+        background-color: #2f0958;
+        box-shadow: 0px 0px 10px 5px #2f0958;
+        padding: 4px;
+    }
 
 
 
