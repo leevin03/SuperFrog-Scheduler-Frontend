@@ -1,26 +1,6 @@
 <template>
   <div>
-    <router-view :key="currentStage"></router-view>
-    <div class="progress-bar">
-      <div
-        class="progress-bar-fill"
-        :style="{ width: progressBarWidth, backgroundColor: currentStage === stages.length - 1 ? 'green' : 'white' }"
-      ></div>
-    </div>
-    <div class="stage-names">
-      <div
-        v-for="(stage, index) in stages"
-        :key="index"
-        :class="{ active: index === currentStage }"
-      >
-        {{ stage }}
-      </div>
-    </div>
-    <div class="button-row">
-      <button v-if="currentStage > 0 && currentStage < stages.length - 1" @click="previousStage">Back</button>
-      <button v-if="currentStage < stages.length - 1"  @click="nextStage">{{ currentStage === stages.length - 2 ? 'Submit' : 'Continue' }}</button>
-      <button v-if="currentStage === stages.length - 1" @click="returnToMainPage">Return to Main Page</button>
-    </div>
+    <router-view :key="currentStage" :form-data="formData" @form-data="storeFormData" :request-ID="requestID" @requestID="storeRequestID"></router-view>
   </div>
 </template>
 
@@ -39,30 +19,35 @@ export default {
   },
   data() {
     return {
-      currentStage: 0,
-      stages: ["Request Details", "Policy Agreement", "Review & Submit", "Finish"]
-    }
-  },
-  computed: {
-    progressBarWidth() {
-      return `${(this.currentStage / (this.stages.length - 1)) * 100}%`
+      formData: {
+        reqFirstName: '',
+        reqLastName: '',
+        reqPhoneNumber: '',
+        reqEmail: '',
+        appearanceType: 'TCU',
+        title: '',
+        orgName: '',
+        address: '',
+        mileage: '',
+        eventDate: '',
+        startTime: '',
+        endTime: '',
+        status: 'PENDING',
+        desc: '',
+        onCampus: '',
+        instructions: '',
+        expenses: '',
+        outsideOrg: '',
+      },
+      requestID: null,
     }
   },
   methods: {
-    nextStage() {
-      if (this.currentStage < this.stages.length - 1) {
-          this.currentStage++
-          this.$router.push( "/request/" + this.stages[this.currentStage].replace(/ /g,'').replace(/&/g, 'And') )
-      }
+    storeFormData(formData) {
+      this.formData = formData;
     },
-    previousStage() {
-      if (this.currentStage > 0) {
-          this.currentStage--
-          this.$router.push("/request/" + this.stages[this.currentStage].replace(/ /g,'').replace(/&/g, 'And') )
-      }
-    },
-    returnToMainPage() {
-      this.$router.push("/")
+    storeRequestID(requestID) {
+      this.requestID = requestID;
     }
   }
 }

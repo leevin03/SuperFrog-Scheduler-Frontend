@@ -3,7 +3,7 @@
 
 <template>
   <div class="form-container">
-    <form @submit.prevent="submitForm">
+    <form ref="form" @submit.prevent="submitForm">
       <div class="form-group-header">Personal Contact Information</div>
       <div class="form-group-row">
         <div class="form-group-column">
@@ -38,9 +38,9 @@
           <div class="form-group-row">
             <label for="appearanceType">*Event Type</label>
             <select id="appearanceType" v-model="form.appearanceType" required>
-              <option value="PRIVATE">PRIVATE</option>
               <option value="TCU">TCU</option>
-              <option value="NONPROFIT">NONPROFIT</option>
+              <option value="NONPROFIT">Public School/Non-Profit</option>
+              <option value="PRIVATE">Private/Residential</option>
             </select>
           </div>
         </div>
@@ -66,6 +66,7 @@
             <input type="text" id="orgName" v-model="form.orgName">
         </div>
       </div>
+
       <div class="form-group">
           <label for="address">*Address of Appearance</label>
           <input type="text" id="address" v-model="form.address" required>
@@ -94,7 +95,7 @@
         <div class="form-group-row">
           <label for="outsideOrg">Outside Organization</label>
           <textarea  id="outsideOrg" v-model="form.outsideOrg" class="description-field" 
-            placeholder="List any other outside organizations involved in sponsoring the event"> </textarea>
+            placeholder="List any other outside organizations involved in sponsoring the event"></textarea>
         </div>
         <div class="form-group-row">
           <label for="expenses">Extra Information</label>
@@ -102,46 +103,83 @@
             placeholder="Describe any expenses or benefits to the spirit team members"></textarea>
         </div>
       </div>
-    </div>
-        
-      
-      
-      <button type="submit">Submit</button>
+    </div>  
     </form>
+
+    <div class="progress-bar-and-button">
+      <div class="progress-bar">
+        <div
+          class="progress-bar-fill"
+          :style="{ width: progressBarWidth, backgroundColor: currentStage === stages.length - 1 ? 'green' : 'white' }"
+        ></div>
+      </div>
+
+      <div class="stage-names">
+        <div
+          v-for="(stage, index) in stages"
+          :key="index"
+          :class="{ active: index === currentStage }"
+        >
+          {{ stage }}
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button type="reset" @click="clearInput">Reset</button>
+        <button type="button" @click="nextStage">Continue</button>
+      </div>
+  </div>
+
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 
-export default { 
+
+export default {
   name: "RequestDetails",
+  props: {
+    formData: {
+      type: Object,
+      required: true,
+    },
+  },
+  computed: {
+    progressBarWidth() {
+      const length = (0.5 / (this.stages.length)) * 100 + (((this.currentStage / (this.stages.length))) * 100);
+      if (this.currentStage ==  this.stages.length - 1) 
+        return '100%';
+      return `${length}%`;
+    }
+  },
   data() {
     return {
-      form: {
-        reqFirstName: '',
-        reqLastName: '',
-        reqPhoneNumber: '',
-        reqEmail: '',
-        appearanceType: 'PRIVATE',
-        title: '',
-        orgName: '',
-        address: '',
-        mileage: '',
-        eventDate: '',
-        startTime: '',
-        endTime: '',
-        status: 'PENDING',
-        desc: '',
-        onCampus: '',
-        instructions: '',
-        expenses: '',
-        outsideOrg: ''
-      }
+      currentStage: 0,
+      stages: ["Request Details", "Policy Agreement", "Review & Submit", "Finish"],
+      form: Object.assign({}, this.formData),
     }
   },
   methods: {
-    submitForm() {
+    nextStage() {
+      // Check for valid phone number
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(this.form.reqPhoneNumber)) {
+        alert('Please enter a valid phone number.');
+        return;
+      }
+      
+      // Check for valid email address
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(this.form.reqEmail)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+
+      //calculate mileage from input address
+      this.distanceCalculator();
+
+      //fill in empty fill to conform with backend API
       if (this.form.mileage <= 2.0) {
         this.form.onCampus = true;
       } else {
@@ -159,37 +197,20 @@ export default {
       if (this.form.orgName === '') {
         this.form.orgName = 'none';
       }
-      if (this.form.mileage === '') {
-        this.distanceCalculator();
-      }
-      axios.post('http://localhost:8080/api/v1/appearances', this.form)
-        .then(response => {
-          console.log(response);
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    },
-    submitForm() {
-      // Check for valid phone number
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phoneRegex.test(this.form.reqPhoneNumber)) {
-        alert('Please enter a valid phone number.');
-        return;
-      }
-      
-      // Check for valid email address
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(this.form.reqEmail)) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-    },
 
+      // Continue to next stage
+      if (this.$refs.form.checkValidity()) {
+        this.$emit('form-data', this.form);
+        this.currentStage++;
+        this.$router.push( "/request/" + this.stages[this.currentStage].replace(/ /g,'').replace(/&/g, 'And') );
+      } else {
+        this.$refs.form.reportValidity();
+      }
+    },
 
     distanceCalculator() {
       const address = this.form.address;
-      const destination = '2850 Stadium Drive; Fort Worth, Texas 76129';
+      const destination = '2850 Stadium Drive, Fort Worth, Texas 76129';
       const apiKey = 'AIzaSyBs-7sheiPvy3j8RW4xihtxOIUUnsmB_Ec'; // Replace with your own API key
 
       // Get the latitude and longitude of the input address
@@ -226,12 +247,87 @@ export default {
         .catch(error => {
           console.log(error);
         });
-    }
+    },
+
+    submitForm() {
+      // do nothing here
+    },
+    clearInput(){
+      this.form = {
+        reqFirstName: '',
+        reqLastName: '',
+        reqPhoneNumber: '',
+        reqEmail: '',
+        appearanceType: 'TCU',
+        title: '',
+        orgName: '',
+        address: '',
+        mileage: '',
+        eventDate: '',
+        startTime: '',
+        endTime: '',
+        status: 'PENDING',
+        desc: '',
+        onCampus: '',
+        instructions: '',
+        expenses: '',
+        outsideOrg: '',
+      }
+    },
   }
 }
 </script>
 
+
+
 <style>
+.progress-bar-and-button{
+  margin-top: 75px;
+}
+
+.progress-bar {
+  border: 1px solid #ccc;
+  background-color: #4d1979;
+  height: 20px;
+  margin-top: 100px;
+  position: relative;
+}
+
+.progress-bar-fill {
+  width: 12.5%;
+  background-color: white;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width 0.5s;
+}
+
+.stage-names {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stage-names div {
+  width: 25%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.stage-names div.active {
+  font-weight: bold;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.stage-content {
+  margin-top: 20px;
+}
+
 .form-container {
   max-width: 500px;
   margin: 0 auto;
@@ -323,7 +419,7 @@ select {
 }
 
 .description-field {
-  height: 6rem; /* or any other desired height */
+  height: 6rem; 
   border-radius: 5px;
   padding: 0.4rem;
   border: 1px solid #ccc;
