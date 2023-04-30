@@ -116,6 +116,7 @@
   </template>
 
 <script>
+    import axios from 'axios';
     export default {
         name: "EnterRequestID",
         props: {
@@ -136,6 +137,42 @@
         },
         methods: {
             async submitForm() {
+                // Check for valid phone number
+                const phoneRegex = /^[0-9]{10}$/;
+                if (!phoneRegex.test(this.form.reqPhoneNumber)) {
+                    alert('Please enter a valid phone number.');
+                    return;
+                }
+                
+                // Check for valid email address
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(this.form.reqEmail)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                //calculate mileage from input address
+                this.distanceCalculator();
+
+                //fill in empty fill to conform with backend API
+                if (this.form.mileage <= 2.0) {
+                    this.form.onCampus = true;
+                } else {
+                    this.form.onCampus = false;
+                }
+                if (this.form.instructions === '') {
+                    this.form.instructions = 'none';
+                }
+                if (this.form.expenses === '') {
+                    this.form.expenses = 'none';
+                }
+                if (this.form.outsideOrg === '') {
+                    this.form.outsideOrg = 'none';
+                }
+                if (this.form.orgName === '') {
+                    this.form.orgName = 'none';
+                }
+
                 console.log(this.requestID);
                 this.$router.push("/");
                 const response = await fetch(`http://localhost:8080/api/v1/appearances/${this.requestID}`, {
@@ -150,9 +187,48 @@
 
                 
             },
-            
-        },
 
+            distanceCalculator() {
+                const address = this.form.address;
+                const destination = '2850 Stadium Drive, Fort Worth, Texas 76129';
+                const apiKey = 'AIzaSyBs-7sheiPvy3j8RW4xihtxOIUUnsmB_Ec'; // Replace with your own API key
+
+                // Get the latitude and longitude of the input address
+                axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${apiKey}`)
+                    .then(response => {
+                    const originLat = response.data.results[0].geometry.location.lat;
+                    const originLng = response.data.results[0].geometry.location.lng;
+
+                    // Get the latitude and longitude of the destination address
+                    axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${destination}&key=${apiKey}`)
+                        .then(response => {
+                        const destLat = response.data.results[0].geometry.location.lat;
+                        const destLng = response.data.results[0].geometry.location.lng;
+
+                        // Calculate the distance using the Haversine formula
+                        const R = 6371; // Earth's radius in km
+                        const dLat = (destLat - originLat) * Math.PI / 180;
+                        const dLon = (destLng - originLng) * Math.PI / 180;
+                        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                    Math.cos(originLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) *
+                                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                        const distance = R * c;
+
+                        // Bind the distance value to "mileage" in the data json
+                        this.form.mileage = distance * 0.621371;
+                        console.log(this.form.mileage);
+                        // console.log(this.form);
+                        })
+                        .catch(error => {
+                        console.log(error);
+                        });
+                    })
+                    .catch(error => {
+                    console.log(error);
+                    });
+            },
+        },
     }
 </script>
 
