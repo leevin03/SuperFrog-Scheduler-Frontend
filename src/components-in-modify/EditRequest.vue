@@ -104,12 +104,13 @@
       </form>
       
       <div class="form-group">
-        <button type="submit" class="submit-button" style="background-color: red;" @click="submitForm">
-            Submit Modification
-            <br>
-            And Return to Home Page
-        </button>
-     </div>
+    <button type="submit" class="submit-button" style="background-color: red; font-weight: bold; width: 400px; padding: 10px;" @click="submitForm">
+        Submit Modification
+        <br>
+        And Return to Home Page
+    </button>
+</div>
+
 
   
     </div>
