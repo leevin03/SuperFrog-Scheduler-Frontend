@@ -38,7 +38,7 @@
       </div>
 
       <div class="button-row">
-        <button type="reset" @click="previousStage">Back</button>
+        <button type="button" @click="previousStage">Back</button>
         <button type="button" @click="nextStage" :disabled="!agreedToTerms">Continue</button>
       </div>
     </div>

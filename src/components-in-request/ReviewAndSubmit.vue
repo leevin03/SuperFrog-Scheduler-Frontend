@@ -97,8 +97,8 @@
       </div>
 
       <div class="button-row">
-        <button type="reset" @click="previousStage">Back</button>
-        <button type="button" @click="submitRequest">Submit Request</button>
+        <button type="button" @click="previousStage">Back</button>
+        <button type="button" @click="submitRequest" class="submit-button">Submit Request</button>
       </div>
     </div>
   </div>
@@ -319,7 +319,7 @@
     color: white;
   } */
 
-  .button-row button[type='button'] {
+  .submit-button {
     background-color: #4caf50;
     color: white;
   }
