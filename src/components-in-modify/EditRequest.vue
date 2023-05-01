@@ -1,6 +1,6 @@
 <template>
     <div class="form-container">
-      <form ref="form" @submit.prevent="submitForm">
+      <form ref="form" @submit.prevent>
         <div class="form-group-header">Personal Contact Information</div>
         <div class="form-group-row">
           <div class="form-group-column">
@@ -103,15 +103,10 @@
       </div>  
       </form>
       
-      <div class="form-group">
-    <button type="submit" class="submit-button" style="background-color: red; font-weight: bold; width: 400px; padding: 10px;" @click="submitForm">
-        Submit Modification
-        <br>
-        And Return to Home Page
-    </button>
-</div>
-
-
+      <div class="button-row">
+        <button type="button" @click="cancelRequest">Cancel Request</button>
+        <button type="submit" @click="submitForm">Modify Request</button>
+      </div>
   
     </div>
   </template>
@@ -137,6 +132,16 @@
             };
         },
         methods: {
+          cancelRequest() {
+            axios.post(`localhost:8080/api/v1/appearances/cancel/${this.requestID}`)
+                .then(response => {
+                    // Handle the response if necessary
+                })
+                .catch(error => {
+                    console.error(error);
+            });
+          },
+
             async submitForm() {
                 // Check for valid phone number
                 const phoneRegex = /^[0-9]{10}$/;
@@ -232,4 +237,19 @@
         },
     }
 </script>
+
+<style scoped>
+.button-row button[type="button"] {
+  background-color: red; /* red */
+  font-weight: 650;
+  color: #fff; /* white text */
+}
+
+.button-row button[type="submit"] {
+  background-color: rgb(67, 217, 67); /* green */
+  font-weight: 650;
+  color: #fff; /* white text */
+}
+</style>
+
 
