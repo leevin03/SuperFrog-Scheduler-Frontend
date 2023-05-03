@@ -137,15 +137,55 @@
         this.currentStage--;
         this.$router.push('/request/' + this.stages[this.currentStage].replace(/ /g, '').replace(/&/g, 'And'));
       },
+      // submitRequest() {
+      //   const app = document.getElementById('app');
+      //   app.classList.add('blur');
+      //   // Show the processing message
+      //   Swal.fire({
+      //     title: 'Processing request...',
+      //     allowOutsideClick: false,
+      //     allowEscapeKey: false,
+      //     showConfirmButton: false,
+      //   });
+
+      //   // Make the API request
+      //   axios
+      //     .post('http://localhost:8080/api/v1/appearances', this.formData)
+      //     .then(response => {
+      //       console.log(response);
+      //       // Close the popup
+      //       Swal.close();
+
+      //       // Emit the requestID event
+      //       this.$emit('requestID', response.data.data.requestId);
+
+      //       // Remove the blur
+      //       app.classList.remove('blur');
+
+      //       // Navigate to the next stage
+      //       this.currentStage++;
+      //       this.$router.push('/request/' + this.stages[this.currentStage].replace(/ /g, '').replace(/&/g, 'And'));
+      //     })
+      //     .catch(error => {
+      //       console.log(error);
+      //       // Close the popup
+      //       Swal.close();
+      //     });
+      // },
+
       submitRequest() {
         const app = document.getElementById('app');
         app.classList.add('blur');
         // Show the processing message
         Swal.fire({
-          title: 'Processing request...',
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          showConfirmButton: false,
+            title: 'Processing',
+            html: 'Please wait while your request is being processed.',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            allowEscapeKey: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
         });
 
         // Make the API request
@@ -162,16 +202,37 @@
             // Remove the blur
             app.classList.remove('blur');
 
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                allowEscapeKey: false,
+                timer: 1500
+            });
+
             // Navigate to the next stage
-            this.currentStage++;
-            this.$router.push('/request/' + this.stages[this.currentStage].replace(/ /g, '').replace(/&/g, 'And'));
+            setTimeout(() => {
+              this.currentStage++;
+              this.$router.push('/request/' + this.stages[this.currentStage].replace(/ /g, '').replace(/&/g, 'And'));
+            }, 1500);
           })
           .catch(error => {
             console.log(error);
             // Close the popup
             Swal.close();
+
+            // Display error message to user
+            Swal.fire({
+              title: 'Error!',
+              text: 'Our server is experiencing some issues, please try again later.',
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
           });
       },
+
     },
     mounted() {
       const app = document.getElementById('app');

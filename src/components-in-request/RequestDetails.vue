@@ -44,14 +44,28 @@
             </select>
           </div>
         </div>
-        <div class="form-group-column">
+        <!-- <div class="form-group-column">
           <div class="form-group-row">
             <label for="startTime">*Start Time</label>
-            <input type="time" id="startTime" v-model="form.startTime" required>
+            <input type="time" id="startTime" v-model="form.startTime" required step="1800" min="09:00" max="21:00">
           </div>
           <div class="form-group-row">
             <label for="endTime">*End Time</label>
-            <input type="time" id="endTime" v-model="form.endTime" required>
+            <input type="time" id="endTime" v-model="form.endTime" required step="1800" min="09:00" max="21:00">
+          </div>
+        </div> -->
+        <div class="form-group-column">
+          <div class="form-group-row">
+            <label for="startTime">*Start Time</label>
+            <select id="startTime" v-model="form.startTime" required>
+              <option v-for="option in timeOptions" :value="option.value">{{ option.display }}</option>
+            </select>
+          </div>
+          <div class="form-group-row">
+            <label for="endTime">*End Time</label>
+            <select id="endTime" v-model="form.endTime" required>
+              <option v-for="option in timeOptions" :value="option.value">{{ option.display }}</option>
+            </select>
           </div>
         </div>
       </div>
@@ -68,12 +82,13 @@
       </div>
 
       <div class="form-group">
-          <label for="address">*Address of Appearance</label>
-          <input type="text" id="address" v-model="form.address" required>
-          <span style="text-align: left; font-size: 0.85rem" >
-            Apperances are only available within the DFW area. 
-            If more than 2 miles from TCU, a $0.75 per mile transportation fee will be added in the total.
-          </span> 
+        <label for="address">*Address of Appearance</label>
+        <input type="text" id="address" v-model="form.address" required>
+        <span style="text-align: left; font-size: 0.85rem" >
+          Appearances are only available within the DFW area. 
+          If more than 2 miles from TCU, a $0.75 per mile transportation fee will be added in the total.
+        </span> 
+        <button @click.prevent="validateLocation" class="validate-location-button">Validate Location</button>
       </div>
       
       <div class="form-group">
@@ -122,7 +137,7 @@
 
       <div class="button-row">
         <button type="reset" @click="clearInput">Reset</button>
-        <button type="button" @click="nextStage">Continue</button>
+        <button type="button" @click="nextStage" :disabled="isContinueDisabled">Continue</button>
       </div>
   </div>
 
@@ -130,7 +145,9 @@
 </template>
 
 <script>
-import axios from 'axios'
+  import axios from 'axios';
+  import 'sweetalert2/dist/sweetalert2.min.css';
+  import swal from 'sweetalert2/dist/sweetalert2.js';
 
 
 export default {
@@ -147,30 +164,110 @@ export default {
       if (this.currentStage ==  this.stages.length - 1) 
         return '100%';
       return `${length}%`;
-    }
+    },
+    // isContinueDisabled() { // new computed property
+    //   return !this.locationValidated;
+    // },
+    // isContinueDisabled() {
+    //   return new Date(`1970-01-01T${this.form.endTime}`) <= new Date(`1970-01-01T${this.form.startTime}`);
+    // },
   },
   data() {
     return {
       currentStage: 0,
       stages: ["Request Details", "Policy Agreement", "Review & Submit", "Finish"],
       form: Object.assign({}, this.formData),
+      timeOptions: [],
+      locationValidated: false,
+      timeValidated: false,
+      previousStartTime: '',
+      previousEndTime: '',
     }
   },
+  mounted() {
+    this.populateTimeOptions();
+  },
+  updated() {
+    if (this.form.startTime !== this.previousStartTime || this.form.endTime !== this.previousEndTime) {
+      this.populateTimeOptions();
+      this.previousStartTime = this.form.startTime;
+      this.previousEndTime = this.form.endTime;
+    }
+  },
+  watch: {
+    form: {
+      handler(newValue) {
+        this.previousStartTime = newValue.startTime;
+        this.previousEndTime = newValue.endTime;
+      },
+      immediate: true,
+      deep: true
+    }
+  },
+  created() {
+    this.previousStartTime = this.form.startTime;
+    this.previousEndTime = this.form.endTime;
+  },
+  
   methods: {
+    populateTimeOptions() {
+      this.timeOptions = [];
+      let start = new Date('1970-01-01T09:00:00');
+      let end = new Date('1970-01-01T21:00:00');
+      let current = new Date(start);
+
+      while (current < end) {
+        let time = current.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+        let value = current.toISOString().substr(11, 8);
+        this.timeOptions.push({ display: time, value: value });
+        current.setMinutes(current.getMinutes() + 30);
+      }
+    },
     nextStage() {
+      if (!this.locationValidated) {
+        new swal({
+          title: "Location not validated",
+          text: "Please validate your location before continuing.",
+          icon: "warning",
+          button: "OK",
+        });
+        return;
+      }
+
+      if (new Date(`1970-01-01T${this.form.endTime}`) <= new Date(`1970-01-01T${this.form.startTime}`)) {
+        new swal({
+          title: "Invalid time",
+          text: "End time must be after start time.",
+          icon: "warning",
+          button: "OK",
+        });
+        return;
+      }
+
       // Check for valid phone number
       const phoneRegex = /^[0-9]{10}$/;
       if (!phoneRegex.test(this.form.reqPhoneNumber)) {
-        alert('Please enter a valid phone number.');
+        new swal({
+          title: "Invalid phone number",
+          text: "Please enter a valid phone number.",
+          icon: "warning",
+          button: "OK",
+        });
         return;
       }
-      
+
       // Check for valid email address
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(this.form.reqEmail)) {
-        alert('Please enter a valid email address.');
+        new swal({
+          title: "Invalid email address",
+          text: "Please enter a valid email address.",
+          icon: "warning",
+          button: "OK",
+        });
         return;
       }
+
 
       //calculate mileage from input address
       this.distanceCalculator();
@@ -229,10 +326,12 @@ export default {
                         Math.cos(originLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) *
                         Math.sin(dLon/2) * Math.sin(dLon/2);
               const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-              const distance = R * c;
+              let distance = R * c;
 
               // Bind the distance value to "mileage" in the data json
-              this.form.mileage = distance * 0.621371;
+              distance = distance * 0.621371;
+
+              this.form.mileage = distance;
               // console.log(this.form.mileage);
               // console.log(this.form);
             })
@@ -244,6 +343,69 @@ export default {
           console.log(error);
         });
     },
+
+    validateLocation() {
+      const address = this.form.address;
+      const destination = '2850 Stadium Drive, Fort Worth, Texas 76129';
+      const apiKey = 'AIzaSyBs-7sheiPvy3j8RW4xihtxOIUUnsmB_Ec'; // Replace with your own API key
+
+      // Get the latitude and longitude of the input address
+      axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${apiKey}`)
+        .then(response => {
+          const originLat = response.data.results[0].geometry.location.lat;
+          const originLng = response.data.results[0].geometry.location.lng;
+
+          // Get the latitude and longitude of the destination address
+          axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${destination}&key=${apiKey}`)
+            .then(response => {
+              const destLat = response.data.results[0].geometry.location.lat;
+              const destLng = response.data.results[0].geometry.location.lng;
+
+              // Calculate the distance using the Haversine formula
+              const R = 6371; // Earth's radius in km
+              const dLat = (destLat - originLat) * Math.PI / 180;
+              const dLon = (destLng - originLng) * Math.PI / 180;
+              const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(originLat * Math.PI / 180) * Math.cos(destLat * Math.PI / 180) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2);
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+              let distance = R * c;
+
+              // Bind the distance value to "mileage" in the data json
+              distance = distance * 0.621371;
+
+              if (distance > 100) {
+                swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: 'Unfortunately, TCU only does events within 100 miles of campus.',
+                });
+                this.form.address = '';
+                return;
+              } else {
+                swal.fire('Congrats!', 'Your address passed validation.', 'success');
+                this.locationValidated = true;
+                this.form.mileage = distance;
+              }
+              // this.form.mileage = distance;
+              // console.log(this.form.mileage);
+              // console.log(this.form);
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          swal.fire({
+            icon: 'warning',
+            title: 'Failed to validate location.',
+            text: "Please make sure you have entered a valid existing address.",
+          });
+          console.log(error);
+        });
+    },
+ 
+
 
     submitForm() {
       // do nothing here
@@ -427,6 +589,7 @@ select {
 
 
 
+
 @media (max-width: 768px) {
   .form-group-column {
   display: flex;
@@ -460,5 +623,6 @@ select {
 
   
 }
+
 
 </style>
